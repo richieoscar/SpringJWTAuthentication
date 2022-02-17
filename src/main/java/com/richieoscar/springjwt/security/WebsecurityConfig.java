@@ -27,22 +27,25 @@ public class WebsecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
-
-    @Bean(name= BeanIds.AUTHENTICATION_MANAGER)
+    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+    @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        JWTAuthenticationFilter jwtAuthenticationFilterfilter = new JWTAuthenticationFilter(authenticationManagerBean());
+        jwtAuthenticationFilterfilter.setFilterProcessesUrl("/api/v1/login");
         http
                 .cors().and().csrf().disable().authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/v1/user/sign-up").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/user/sign-up","/api/v1/login/**").permitAll()
+               // .antMatchers("/api/v1/user/deleteAll/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
-                .addFilter(new JWTAuthenticationVerificationFilter(authenticationManager()))
+                .addFilter(jwtAuthenticationFilterfilter)
+                .addFilter(new JWTAuthorizationFilter(authenticationManagerBean()))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

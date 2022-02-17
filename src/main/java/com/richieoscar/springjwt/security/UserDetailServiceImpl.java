@@ -1,6 +1,6 @@
 package com.richieoscar.springjwt.security;
 
-import com.richieoscar.springjwt.collection.User;
+import com.richieoscar.springjwt.collection.AppUser;
 import com.richieoscar.springjwt.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,10 +23,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userOptional = repository.findByName(username);
+        Optional<AppUser> userOptional = repository.findByUsername(username);
         if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), Collections.emptyList());
+            AppUser appUser = userOptional.get();
+            return new org.springframework.security.core.userdetails.User(appUser.getUsername(), appUser.getPassword(), Collections.emptyList());
         } else throw new UsernameNotFoundException(String.format("User not found with this %", username));
     }
 }

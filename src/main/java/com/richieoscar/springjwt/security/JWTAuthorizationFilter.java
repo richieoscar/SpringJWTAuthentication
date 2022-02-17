@@ -6,7 +6,6 @@ import com.richieoscar.springjwt.constants.SecurityConstants;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
@@ -19,8 +18,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 @Component
-public class JWTAuthenticationVerificationFilter extends BasicAuthenticationFilter {
-    public JWTAuthenticationVerificationFilter(AuthenticationManager authenticationManager) {
+public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+    public JWTAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
 
@@ -29,16 +28,19 @@ public class JWTAuthenticationVerificationFilter extends BasicAuthenticationFilt
         String header = request.getHeader(SecurityConstants.HEADER_STRING);
         if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
             chain.doFilter(request, response);
+            return;
         }
-        Authentication authentication = getAuthentication(request);
+        UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            chain.doFilter(request,response);
     }
 
-    Authentication getAuthentication(HttpServletRequest request) {
+    UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.HEADER_STRING);
         if (token != null) {
-            String user = JWT.require(Algorithm.HMAC512(SecurityConstants.SECRET_KEY.getBytes())).build().verify(token.replace(SecurityConstants.TOKEN_PREFIX, "")).getSubject();
+            String user = JWT.require(Algorithm.HMAC512(SecurityConstants.SECRET_KEY.getBytes()))
+                    .build()
+                    .verify(token.replace(SecurityConstants.TOKEN_PREFIX, "")).getSubject();
             if (user != null) {
                 return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
             }

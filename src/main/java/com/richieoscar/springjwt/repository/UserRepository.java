@@ -1,12 +1,12 @@
 package com.richieoscar.springjwt.repository;
 
-import com.richieoscar.springjwt.collection.User;
+import com.richieoscar.springjwt.collection.AppUser;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends MongoRepository<User, String> {
-    Optional<User> findByName(String username);
+public interface UserRepository extends MongoRepository<AppUser, String> {
+    Optional<AppUser> findByUsername(String username);
 }

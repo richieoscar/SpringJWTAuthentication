@@ -9,8 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class AppUser {
 
-    private String name;
+    private String username;
     private String password;
 }
